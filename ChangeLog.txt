@@ -1,0 +1,13 @@
+insaneBOOT - ChangeLog
+======================
+
+2026-09-11
+- parser.s: ajout de 4 flags combines resolution + CPU :
+  .ITEMSTC000 (couleur + 68000)
+  .ITEMSTM000 (mono/haute res + 68000)
+  .ITEMSTC020 (couleur + 68020)
+  .ITEMSTM020 (mono/haute res + 68020)
+  -> tokens, handlers et entrees chktoken correspondants.
+- autoexec.cfg : documentation des nouveaux flags combines.
+- Constat prealable : .ITEM020 (68020) existait deja, ainsi que
+  item000/010/040 ; seule la combinaison resolution+CPU manquait.

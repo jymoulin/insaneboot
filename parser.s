@@ -178,6 +178,10 @@ parsecommands
 		chktoken item060
 		chktoken itemstc
 		chktoken itemstm
+		chktoken itemstc000
+		chktoken itemstm000
+		chktoken itemstc020
+		chktoken itemstm020
 		chktoken msg
 		chktoken msgln
 		chktoken ver
@@ -298,6 +302,30 @@ handle_item040
 		bra	handle_item
 handle_item060
 		m_cmpb	#060,c_cpu+3
+		bne	skipitem
+		bra	handle_item
+handle_itemstc000
+		m_cmpb	#2,shiftres	; mono ? -> pas couleur, skip
+		beq	skipitem
+		m_cmpb	#000,c_cpu+3	; 68000 ?
+		bne	skipitem
+		bra	handle_item
+handle_itemstm000
+		m_cmpb	#2,shiftres	; ST haute resolution (mono) ?
+		bne	skipitem
+		m_cmpb	#000,c_cpu+3	; 68000 ?
+		bne	skipitem
+		bra	handle_item
+handle_itemstc020
+		m_cmpb	#2,shiftres	; mono ? -> pas couleur, skip
+		beq	skipitem
+		m_cmpb	#020,c_cpu+3	; 68020 ?
+		bne	skipitem
+		bra	handle_item
+handle_itemstm020
+		m_cmpb	#2,shiftres	; ST haute resolution (mono) ?
+		bne	skipitem
+		m_cmpb	#020,c_cpu+3	; 68020 ?
 		bne	skipitem
 		bra	handle_item
 handle_itemstc
@@ -586,6 +614,10 @@ tok_item040		dc.b	".ITEM040",0
 tok_item060		dc.b	".ITEM060",0
 tok_itemstc		dc.b	".ITEMSTC",0
 tok_itemstm		dc.b	".ITEMSTM",0
+tok_itemstc000		dc.b	".ITEMSTC000",0
+tok_itemstm000		dc.b	".ITEMSTM000",0
+tok_itemstc020		dc.b	".ITEMSTC020",0
+tok_itemstm020		dc.b	".ITEMSTM020",0
 tok_end			dc.b	".END",0
 			even
 v_savelast		dc.b	1
