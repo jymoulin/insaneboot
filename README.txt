@@ -7,6 +7,10 @@ programmes selon la config autoexec.cfg. Ne modifie pas le disque.
 Detection materielle (supcode.s, via cookies systeme) :
 - c_cpu  : cookie _CPU (0/10/20/30/40/60 = 68000..68060)
 - c_mch  : cookie _MCH (type de machine)
+- c_tosver : os_version (_sysbase $4f2 +2 ; $0206=2.06, $0162=1.62)
+             affichable via .showtos ("TOS x.xx", octet bas en BCD).
+             EmuTOS renvoie aussi $0206 (cookie ETOS a etudier pour le
+             distinguer d'un vrai TOS 2.06).
 - shiftres : registre $ffff8260 & %11 (0/1 = couleur, 2 = mono/haute res)
 
 Flags d'items conditionnels (parser.s) :

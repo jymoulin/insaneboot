@@ -1,6 +1,14 @@
 insaneBOOT - ChangeLog
 ======================
 
+2026-09-13 (suite)
+- Detection version TOS : getcookies_sup lit os_version (_sysbase $4f2
+  +2) dans c_tosver. Nouvelle directive .showtos -> affiche "TOS x.xx"
+  (octet bas en BCD). Valide sous Hatari via --conout : TOS 2.06 et
+  EmuTOS (qui s'annonce 2.06). Compile 68k + ColdFire.
+  NB : EmuTOS renvoie os_version=$0206, donc non distinguable d'un vrai
+  TOS 2.06 par ce seul champ (cookie ETOS a etudier pour cela).
+
 2026-09-13
 - Nouvelle directive .jar N : reserve un cookie jar resident de N
   cookies (remplace jarXXX.prg). Max 128, 0/absent = desactive.

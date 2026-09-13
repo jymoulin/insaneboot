@@ -186,6 +186,7 @@ parsecommands
 		chktoken msg
 		chktoken msgln
 		chktoken ver
+		chktoken showtos
 		chktoken end
 		bra	abortunknown
 
@@ -400,6 +401,26 @@ handle_ver
 		tos_cconws menuver
 		bra	parseloop
 
+handle_showtos
+;prints "TOS x.xx" from c_tosver (os_version, low byte is BCD)
+		moveq	#0,d0
+		move.w	c_tosver,d0
+		move.l	d0,d1
+		lsr.l	#8,d1			;major
+		add.l	#'0',d1
+		move.b	d1,tos_maj
+		move.l	d0,d1
+		lsr.l	#4,d1
+		and.l	#$f,d1			;minor high nibble
+		add.l	#'0',d1
+		move.b	d1,tos_min
+		move.l	d0,d1
+		and.l	#$f,d1			;minor low nibble
+		add.l	#'0',d1
+		move.b	d1,tos_min+1
+		tos_cconws msg_tos
+		bra	parseloop
+
 handle_end
 	ifd	__mcoldfire__
 		move.w	#1,d5
@@ -608,9 +629,14 @@ msg_newlinekey		dc.b	13,10
 			dc.b	"Press any key to terminate the program"
 msg_newline		dc.b	13,10,0
 msg_configerr		dc.b	"Error inside config line:",13,10,0
+msg_tos			dc.b	"TOS "
+tos_maj			dc.b	"0"
+			dc.b	"."
+tos_min			dc.b	"00",13,10,0
 tok_msg			dc.b	".MSG!",0
 tok_msgln		dc.b	".MSG",0
 tok_ver			dc.b	".SHOWVERSION",0
+tok_showtos		dc.b	".SHOWTOS",0
 tok_fpatch		dc.b	".FPATCH",0
 tok_magic		dc.b	".MAGICQUIT",0
 ;tok_keepmem		dc.b	".KEEPMEM",0
@@ -649,6 +675,7 @@ v_jar			dc.w	0	;cookies to reserve via .jar (0=off)
 		section	bss
 c_mch			ds.l	1	;0x00030000=Falcon030 (compare hi-word only!)
 c_cpu			ds.l	1	;00=68000, 60=68060 etc.
+c_tosver		ds.w	1	;os_version ($0206=TOS 2.06, $0162=1.62)
 magxfound		ds.l	1
 shiftres		ds.w	1
 fhandle			ds.w	1

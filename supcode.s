@@ -40,6 +40,10 @@ getcookies_sup
 		move.l	#"MagX",d0
 		bsr	get_cookie
 		move.l	d0,magxfound
+		move.l	#$4f2,a0		;_sysbase -> OS header
+		move.l	(a0),a0
+		move.w	2(a0),d0		;os_version ($0206 = TOS 2.06)
+		move.w	d0,c_tosver
 	ifnd	__mcoldfire__
 		move.b	$ffff8260.w,d0
 		and.b	#%11,d0
