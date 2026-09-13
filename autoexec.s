@@ -5,14 +5,21 @@ DORUN_RUN=1
 DORUN_HELP=2
 MAXITEMS=24
 LOWRAM=$378
+JARMAX=128		;max cookies reservable via .jar (buffer size)
 	comment	head=7
 	section	code	;125f8
 		bsr	getcmdline
+		move.l	4(sp),a0		;basepage, saved for optional Ptermres
+		move.l	a0,v_basepage
 		tos_mshrinkinit	#1024
 		bsr	readconfig
 		bsr	setdefaults
 		bsr	getcookies
 		bsr	parseconfig
+		tst.w	v_jar			;.jar requested ?
+		beq	jarskip
+		bsr	installjar		;reserve resident cookie jar
+jarskip
 		bsr	dofpatch
 		bsr	keyclickm
 
@@ -163,6 +170,16 @@ runauto
 		bsr	keyclickt
 
 terminate
+		tst.w	v_jar			;jar reserved -> must stay resident
+		beq	.pterm
+		move.l	v_basepage,a5
+		move.l	$0c(a5),d0		;text length
+		add.l	$14(a5),d0		;+ data length
+		add.l	$1c(a5),d0		;+ bss length (holds jarbuffer)
+		add.l	#$100,d0		;+ basepage
+		add.l	#1024,d0		;+ stack (as mshrinkinit)
+		tos_ptermres d0,#0
+.pterm
 		tos_pterm0
 
 getcmdline

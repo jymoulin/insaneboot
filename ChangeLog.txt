@@ -1,6 +1,24 @@
 insaneBOOT - ChangeLog
 ======================
 
+2026-09-13
+- Nouvelle directive .jar N : reserve un cookie jar resident de N
+  cookies (remplace jarXXX.prg). Max 128, 0/absent = desactive.
+  * parser.s   : token .JAR, handle_jar (clamp a JARMAX), v_jar, et
+                 buffers BSS jarbuffer + v_basepage.
+  * supcode.s  : installjar / installjar_sup (superviseur) : recopie
+                 les cookies existants, ecrit le terminateur {0,capa}
+                 et repointe _p_cookies ($5a0) sur jarbuffer.
+  * autoexec.s : sauvegarde de la basepage, installation apres
+                 parseconfig, et sortie par Ptermres (au lieu de
+                 Pterm0) quand .jar est utilise (reste resident).
+  * autoexec.cfg : documentation de .jar.
+  Compile OK sur les deux cibles (68k et Coldfire cf5474).
+- Etude .foldr : abandonnee. Desassemblage de FOLDRXXX.PRG (capstone)
+  -> patch d'internes GEMDOS, no-op sur TOS >= 1987 (os_dosdate) et
+  table d'adresses codees en dur pour 4 ROMs 1985-86 uniquement.
+  Inutile sur EmuTOS / TOS 1.62 / 2.06 (FRB dynamiques). Non implemente.
+
 2026-09-11
 - parser.s: ajout de 4 flags combines resolution + CPU :
   .ITEMSTC000 (couleur + 68000)

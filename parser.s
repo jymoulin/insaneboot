@@ -166,6 +166,7 @@ parsecommands
 ;		chktoken keepmem
 		chktoken keyclick
 		chktoken timeout
+		chktoken jar
 		chktoken selectch
 		chktoken savelast
 		chktoken default
@@ -249,6 +250,19 @@ handle_savelast
 
 		bsr	cfg_getnum
 		move.b	d0,v_savelast
+.done
+		bra	parseloop
+
+handle_jar
+		bsr	cfg_gettoken
+		beq	.done
+
+		bsr	cfg_getnum
+		cmp.l	#JARMAX,d0		;clamp to buffer capacity
+		ble	.store
+		move.l	#JARMAX,d0
+.store
+		move.w	d0,v_jar		;0 = disabled
 .done
 		bra	parseloop
 
@@ -602,6 +616,7 @@ tok_magic		dc.b	".MAGICQUIT",0
 ;tok_keepmem		dc.b	".KEEPMEM",0
 tok_keyclick		dc.b	".KEYCLICK",0
 tok_timeout		dc.b	".TIMEOUT",0
+tok_jar			dc.b	".JAR",0
 tok_savelast		dc.b	".SAVELAST",0
 tok_default		dc.b	".DEFAULTITEM",0
 tok_selectch		dc.b	".SELECTCHAR",0
@@ -628,6 +643,8 @@ v_keyclickt		dc.b	1
 v_timeout		dc.b	5
 v_selectch		dc.b	">",0
 			even
+v_jar			dc.w	0	;cookies to reserve via .jar (0=off)
+			even
 
 		section	bss
 c_mch			ds.l	1	;0x00030000=Falcon030 (compare hi-word only!)
@@ -646,6 +663,8 @@ menuptrs		ds.l	MAXITEMS
 cfglinepos		ds.l	1
 configtxtpos		ds.l	1
 configcurlinepos	ds.l	1
+v_basepage		ds.l	1	;our basepage (for Ptermres)
+jarbuffer		ds.l	(JARMAX+1)*2	;resident cookie jar (.jar)
 tmpfilename
 configline		ds.b	256
 configtoken		ds.b	256

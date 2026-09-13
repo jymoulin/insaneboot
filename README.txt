@@ -20,9 +20,23 @@ Flags d'items conditionnels (parser.s) :
 Chaque handler enchaine les tests (bne skipitem) avant handle_item ;
 ajouter une combinaison = 3 lignes (chktoken + handler + token).
 
+Directives globales notables :
+- .jar N  : reserve un cookie jar resident de N cookies (max 128),
+  remplace jarXXX.prg. Recopie les cookies existants, ecrit le
+  terminateur {0,capacite} et repointe _p_cookies ($5a0) sur un buffer
+  BSS (jarbuffer). Quand .jar est present, insaneboot sort par Ptermres
+  (au lieu de Pterm0) pour rester resident et conserver le jar.
+  Code : handle_jar (parser.s), installjar/installjar_sup (supcode.s),
+  install + Ptermres conditionnel (autoexec.s).
+- .foldr : NON implemente (obsolete). FOLDRXXX.PRG est un no-op sur
+  TOS >= 1987 et n'a des adresses codees en dur que pour 4 ROMs 1985-86.
+  Sur EmuTOS / TOS 1.62 / 2.06 la gestion des FRB est dynamique.
+
 Build : `make all` (68k) ; `make cf` (cible Coldfire cf5474).
 vasmm68k_mot est dans ~/.local/opt/ (ajouter au PATH si besoin).
-Etat : les deux cibles compilent (vasm 2.0f) avec les flags combines.
+Etat : les deux cibles compilent (vasm 2.0f) avec les flags combines
+et la directive .jar. .jar non encore teste en emulateur/reel (a valider
+sous EmuTOS et TOS 1.62/2.06, ex. via un dumpeur de cookies).
 NB Coldfire : shiftres n'est pas initialise (mis a jour uniquement en
 build 68k, cf supcode.s), donc les variantes STC/STM y sont toujours
 traitees comme "couleur" -- comportement pre-existant, inchange.

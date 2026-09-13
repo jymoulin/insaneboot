@@ -14,6 +14,9 @@ keyclickt
 loadmenupos
 		pea	loadmenupos_sup
 		bra	supexec_common
+installjar
+		pea	installjar_sup
+		bra	supexec_common
 savemenupos
 		pea	savemenupos_sup
 
@@ -42,6 +45,44 @@ getcookies_sup
 		and.b	#%11,d0
 		move.b	d0,shiftres
 	endif
+		rts
+
+;reserve a resident cookie jar with room for v_jar cookies.
+;runs in supervisor (via Supexec). rebuilds the jar in jarbuffer,
+;copies the existing cookies, writes the {0,capacity} terminator
+;and repoints _p_cookies ($5a0). memory is kept via Ptermres at exit.
+installjar_sup
+		move.l	#ptr_cookiejar,a1	;a1 = $5a0
+		move.l	#jarbuffer,a0		;dest
+		moveq	#0,d2			;used cookie count
+		move.l	(a1),d1			;existing jar ?
+		beq	.writeterm
+		move.l	d1,a2
+.copylp
+		move.l	(a2),d0			;tag
+		beq	.writeterm		;terminator reached
+		cmp.l	#JARMAX-1,d2		;keep a slot for terminator
+		bge	.writeterm
+		move.l	(a2)+,(a0)+		;copy tag
+		move.l	(a2)+,(a0)+		;copy value
+		addq.l	#1,d2
+		bra	.copylp
+.writeterm
+		moveq	#0,d0
+		move.w	v_jar,d0		;requested capacity
+		move.l	d2,d3
+		addq.l	#1,d3			;used + terminator
+		cmp.l	d3,d0			;capacity must hold existing cookies
+		bge	.capok
+		move.l	d3,d0
+.capok
+		cmp.l	#JARMAX,d0		;never exceed buffer
+		ble	.capok2
+		move.l	#JARMAX,d0
+.capok2
+		clr.l	(a0)+			;terminator tag = 0
+		move.l	d0,(a0)+		;terminator value = capacity
+		move.l	#jarbuffer,(a1)		;_p_cookies -> our jar
 		rts
 
 keyclickm_sup
