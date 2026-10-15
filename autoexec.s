@@ -8,6 +8,11 @@ LOWRAM=$378
 JARMAX=128		;max cookies reservable via .jar (buffer size)
 	comment	head=7
 	section	code	;125f8
+res_start
+		bra	start
+		include	"acc.s"		;resident block first (see acc.s)
+	section	code
+start
 		bsr	getcmdline
 		move.l	4(sp),a0		;basepage, saved for optional Ptermres
 		move.l	a0,v_basepage
@@ -112,14 +117,18 @@ runauto
 		cmp.b	#0,d5		; skip empty lines
 		beq	.lp
 		cmp.b	#'.',d5
+		beq	.done
+		cmp.b	#'@',d5		; accessory setting (acc.s)
 	else
 		cmp.b	#";",(a0)	; skip comment lines
 		beq	.lp
 		cmp.b	#0,(a0)		; skip empty lines
 		beq	.lp
 		cmp.b	#'.',(a0)
-	endif
 		beq	.done
+		cmp.b	#'@',(a0)	; accessory setting (acc.s)
+	endif
+		beq	.accline
 		bsr	cfg_gettoken
 		moveq	#0,d0
 		move.l	a1,a2
@@ -148,6 +157,22 @@ runauto
 .pexecdone
 		m_popa
 		bra	.lp
+.accline
+	ifd	__mcoldfire__
+		move.w	dorun,d5
+		cmp.w	#DORUN_HELP,d5
+	else
+		cmp.w	#DORUN_HELP,dorun
+	endif
+		bne	.accrun
+		tos_cconwsm a0		; help: just show the line
+		tos_cconws msg_newline
+		bra	.lp
+.accrun
+	ifnd	__mcoldfire__
+		bsr	acc_parseline
+	endif
+		bra	.lp
 .done
 	ifd	__mcoldfire__
 		move.w	dorun,d5
@@ -171,15 +196,9 @@ runauto
 
 terminate
 		tst.w	v_jar			;jar reserved -> must stay resident
-		beq	.pterm
-		move.l	v_basepage,a5
-		move.l	$0c(a5),d0		;text length
-		add.l	$14(a5),d0		;+ data length
-		add.l	$1c(a5),d0		;+ bss length (holds jarbuffer)
-		add.l	#$100,d0		;+ basepage
-		add.l	#1024,d0		;+ stack (as mshrinkinit)
-		tos_ptermres d0,#0
-.pterm
+		bne	goresident		;(resident.s)
+		tst.w	acc_enabled		;accessory hook -> resident too
+		bne	goresident
 		tos_pterm0
 
 getcmdline
@@ -205,6 +224,7 @@ getcmdline
 		include	"parser.s"
 		include	"supcode.s"
 		include	"getcookie.s"
+		include	"resident.s"	;must stay the last code include
 
 	section	data
 msg_notfound	dc.b	"Can't open "

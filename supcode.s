@@ -42,8 +42,15 @@ getcookies_sup
 		move.l	d0,magxfound
 		move.l	#$4f2,a0		;_sysbase -> OS header
 		move.l	(a0),a0
+		move.l	8(a0),a0		;os_beg: the real OS header
 		move.w	2(a0),d0		;os_version ($0206 = TOS 2.06)
 		move.w	d0,c_tosver
+		move.l	$2c(a0),d0		;EmuTOS signature in its header
+		cmp.l	#"ETOS",d0
+		bne	.notemutos
+		moveq	#1,d0
+		move.w	d0,c_emutos
+.notemutos
 	ifnd	__mcoldfire__
 		move.b	$ffff8260.w,d0
 		and.b	#%11,d0
@@ -51,7 +58,7 @@ getcookies_sup
 	endif
 		rts
 
-;reserve a resident cookie jar with room for v_jar cookies.
+;reserve a resident cookie jar with room for v_jar cookies in total.
 ;runs in supervisor (via Supexec). rebuilds the jar in jarbuffer,
 ;copies the existing cookies, writes the {0,capacity} terminator
 ;and repoints _p_cookies ($5a0). memory is kept via Ptermres at exit.
@@ -73,7 +80,7 @@ installjar_sup
 		bra	.copylp
 .writeterm
 		moveq	#0,d0
-		move.w	v_jar,d0		;requested capacity
+		move.w	v_jar,d0		;requested total capacity
 		move.l	d2,d3
 		addq.l	#1,d3			;used + terminator
 		cmp.l	d3,d0			;capacity must hold existing cookies

@@ -1,6 +1,68 @@
 insaneBOOT - ChangeLog
 ======================
 
+2026-10-02
+- Bus Error / panic en mode 68000 (TwiSTEr) : cause materielle (contact
+  du 68000 dans son support). Apres nettoyage, le meme binaire tourne en
+  68000. Aucun bug insaneboot ; variantes de diagnostic retirees.
+- Tests reels : .showtos (rien sous EmuTOS) et .magicquit valides.
+
+2026-09-30 (suite)
+- Residence minimale : nouveau resident.s (goresident/movejar_sup),
+  acc.s deplace au debut du segment texte avec ses variables (plus en
+  BSS), ACCMAX 16 -> 8. A la sortie le jar est recopie derriere le bloc
+  resident et seul ce debut est garde par Ptermres : 480 o pour .jar 20,
+  1776 o pour @acc, 2000 o pour les deux (avant : ~9 Ko). JAR10.PRG
+  garde ~1,2 Ko.
+- .jar N : capacite TOTALE du jar (choix confirme ; l'essai "N places
+  libres" facon JARxxx.PRG a ete annule).
+- Valide sous Hatari STE (TOS 2.06, EmuTOS 1.2.1) : jar deplace, cookie
+  ajoute par un programme lance conserve, accessoires + RSC OK, item
+  sans rien -> Pterm0.
+
+2026-09-30
+- .showtos n'affiche plus rien sous EmuTOS (qui affiche deja sa version) :
+  detection par la signature "ETOS" a l'offset $2c de l'en-tete OS
+  (via os_beg), flag c_emutos. Valide : TOS 2.06 affiche "TOS 2.06",
+  EmuTOS (Hatari) et EmuTOS 1.2.1 DE n'affichent rien.
+
+2026-09-26
+- @acc : les ressources des accessoires deplaces sont retrouvees. Si un
+  Fsfirst/Fopen de NOM.RSC echoue et que NOM.ACC a ete charge par le
+  hook, l'appel est reessaye en <dir>\NOM.RSC (acc_rscpath, table
+  acc_loaded). Corrige l'alerte "TASKMAN.RSC not found!". Valide sous
+  Hatari STE : EmuTOS 1.2.1 DE (celui du TwiSTEr) et TOS 2.06.
+- .magicquit : handle_magic remet v_jar a 0 avant de quitter ; avant,
+  un .jar place avant .magicquit laissait insaneboot resident sous MagiC
+  sans jar installe. Valide avec un faux cookie MagX (Pterm0).
+- Panic 68000 signale : non reproduit (binaire identique a -m68000,
+  config reelle du Disk_STE + EmuTOS 1.2.1 + nouvelles directives OK).
+- Fichiers de test deplaces dans ~/Downloads/ToTest/INSANEBT/.
+
+2026-09-22
+- Accessoires du bureau par item : lignes "@accdir <dir>" et
+  "@acc NOM.ACC" dans un bloc .item (nouveau fichier acc.s, inclus par
+  autoexec.s). Hook GEMDOS resident qui redirige l'enumeration \*.ACC
+  de l'AES vers <dir> et filtre les noms selon la liste ; remplace
+  ACC.PRG avec en plus le filtrage, XBRA, frames 68010+ et USP/SSP.
+  * autoexec.s : lignes '@' dans runauto (affichees en mode help),
+    terminate reste resident et installe le hook si acc_enabled.
+  * autoexec.cfg / README.txt : documentation. ToTest/ : binaires +
+    AUTOEXEC_ACC.CFG d'exemple.
+  68k uniquement (ignore sur ColdFire). Valide sous Hatari (TOS 2.06 et
+  EmuTOS, traces gemdos+aes) : seuls les accessoires listes sont
+  charges et enregistres (menu_register), ceux de la racine ignores.
+- Analyse prealable : sequence AES = Fsfirst("\*.ACC") + Fsnext, puis
+  Fopen + Pexec(3) par accessoire, noms nus (repertoire courant racine).
+- Validation Falcon/TOS 4.04 (68030, Hatari --machine falcon
+  --fast-boot on) : accessoires filtres OK (chemin _longframe/USP) et
+  .jar OK (_CPU=30, _MCH=Falcon, capacite 100 conservee apres Ptermres).
+  Regression : item sans '@' -> pas de hook, Pterm0, ACC racine charges.
+- Date de banniere regeneree (make release -> release.inc = 20260922),
+  binaires recompiles et recopies dans ToTest/.
+- Rappel : .showtos doit etre ajoute dans autoexec.cfg (apres
+  .showversion) pour afficher la version du TOS ; rien n'est automatique.
+
 2026-09-13 (suite)
 - Detection version TOS : getcookies_sup lit os_version (_sysbase $4f2
   +2) dans c_tosver. Nouvelle directive .showtos -> affiche "TOS x.xx"

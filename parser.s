@@ -208,6 +208,7 @@ handle_magic
 		beq	.done
 		tst.l	magxfound
 		beq	.done
+		clr.w	v_jar			;jar not installed yet: no Ptermres
 		bra	terminate
 .done
 		bra	parseloop
@@ -403,6 +404,9 @@ handle_ver
 
 handle_showtos
 ;prints "TOS x.xx" from c_tosver (os_version, low byte is BCD)
+;nothing on EmuTOS: it already shows its own version at boot
+		tst.w	c_emutos
+		bne	.skip
 		moveq	#0,d0
 		move.w	c_tosver,d0
 		move.l	d0,d1
@@ -419,6 +423,7 @@ handle_showtos
 		add.l	#'0',d1
 		move.b	d1,tos_min+1
 		tos_cconws msg_tos
+.skip
 		bra	parseloop
 
 handle_end
@@ -676,6 +681,7 @@ v_jar			dc.w	0	;cookies to reserve via .jar (0=off)
 c_mch			ds.l	1	;0x00030000=Falcon030 (compare hi-word only!)
 c_cpu			ds.l	1	;00=68000, 60=68060 etc.
 c_tosver		ds.w	1	;os_version ($0206=TOS 2.06, $0162=1.62)
+c_emutos		ds.w	1	;1 = EmuTOS ("ETOS" at os header+$2c)
 magxfound		ds.l	1
 shiftres		ds.w	1
 fhandle			ds.w	1
