@@ -57,6 +57,10 @@ Directives globales notables :
   TOS >= 1987 et n'a des adresses codees en dur que pour 4 ROMs 1985-86.
   Sur EmuTOS / TOS 1.62 / 2.06 la gestion des FRB est dynamique.
 
+Depot git : remote 'fork' = git@github.com:jymoulin/insaneboot (SSH,
+on pousse ici) ; remote 'origin' = insane-rabenauge/insaneboot (amont).
+Hors depot (non suivis) : FOLDRXXX.PRG, acc/ (analyse ACC.PRG), *.lst.
+
 Build : `make all` (68k) ; `make cf` (cible Coldfire cf5474).
 vasmm68k_mot est dans ~/.local/opt/ (ajouter au PATH si besoin).
 Etat : les deux cibles compilent (vasm 2.0f). .jar, .showtos et les

@@ -1,6 +1,12 @@
 insaneBOOT - ChangeLog
 ======================
 
+2026-10-15
+- Commentaires du code verifies : tous en anglais. autoexec.cfg corrige
+  (@acc : 8 max, pas 16).
+- Rebase sur l'amont (40fbd99 "insaneBOOT can handle an empty item") et
+  push sur le fork jymoulin/insaneboot (main e8f46ef).
+
 2026-10-02
 - Bus Error / panic en mode 68000 (TwiSTEr) : cause materielle (contact
   du 68000 dans son support). Apres nettoyage, le meme binaire tourne en
